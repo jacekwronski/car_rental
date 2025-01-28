@@ -23,7 +23,8 @@ defmodule CarRental.MixProject do
   defp deps do
     [
       {:typed_struct, "~> 0.3.0"},
-      {:faker, "~> 0.18"}
+      {:faker, "~> 0.18"},
+      {:quantum, "~> 3.0"}
     ]
   end
 end

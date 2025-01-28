@@ -1,14 +1,11 @@
 defmodule RateLimiterTest do
   alias CarRental.TrustScore.RateLimiter
-  alias Logger.Translator
   alias CarRental.TrustScore.Params.ClientParams
   alias CarRental.TrustScore.Params
   use ExUnit.Case
   doctest CarRental.TrustScore
 
   test "calculate_score works for the first call" do
-    RateLimiter.init({})
-
     responses =
       CarRental.Clients.list_clients()
       |> elem(1)
@@ -27,8 +24,6 @@ defmodule RateLimiterTest do
   end
 
   test "calculate score returns error with 200 clients" do
-    RateLimiter.init({})
-
     clients1 = CarRental.Clients.list_clients() |> elem(1)
     clients2 = CarRental.Clients.list_clients() |> elem(1)
 
@@ -50,8 +45,6 @@ defmodule RateLimiterTest do
   end
 
   test "return error on rate limit exceeded" do
-    RateLimiter.init({})
-
     result =
       CarRental.Clients.list_clients()
       |> elem(1)
