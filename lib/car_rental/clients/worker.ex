@@ -7,8 +7,8 @@ defmodule CarRental.Clients.Worker do
 
   use GenServer
 
-  def start_link([clients, id]) do
-    GenServer.start_link(__MODULE__, [clients], name: via_tuple(id))
+  def start_link([clients]) do
+    GenServer.start_link(__MODULE__, [clients])
   end
 
   def init([clients]) do
@@ -26,28 +26,29 @@ defmodule CarRental.Clients.Worker do
     {:ok, init_state}
   end
 
-  def execute(cmd, id) do
-    GenServer.cast(via_tuple(id), cmd)
+  def execute(pid, cmd) do
+    GenServer.cast(pid, cmd)
   end
 
   def handle_cast(:update_score, state) do
     TrustScore.calculate_score(%Params{clients: state})
     |> handle_calcluate_score_result()
-
-    {:noreply, state}
+    |> create_response(state)
   end
 
   def handle_info(:update_score, state) do
     TrustScore.calculate_score(%Params{clients: state})
     |> handle_calcluate_score_result()
-
-    {:noreply, state}
+    |> create_response(state)
   end
+
+  def create_response({_, :stop}, state), do: {:stop, :normal, state}
+  def create_response({_, :wait}, state), do: {:noreply, state}
 
   def handle_calcluate_score_result({:error, "Rate limit exceeded"}) do
     Process.send_after(self(), :update_score, 60000 + :rand.uniform(10000))
 
-    {:ok}
+    {:ok, :wait}
   end
 
   def handle_calcluate_score_result(response) do
@@ -57,10 +58,11 @@ defmodule CarRental.Clients.Worker do
       Clients.save_score_for_client(params)
     end)
 
-    {:ok}
+    {:ok, :stop}
   end
 
-  defp via_tuple(id) do
-    {:via, Registry, {CarRental.Clients.Registry, id}}
+  def terminate(_, _) do
+    IO.inspect("PROCESS TERMINATED")
+    :ok
   end
 end

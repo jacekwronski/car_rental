@@ -17,10 +17,6 @@ defmodule CarRental.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: CarRental.Supervisor]
-    res = Supervisor.start_link(children, opts)
-
-    CarRental.Clients.Supervisor.spawn_children()
-
-    res
+    Supervisor.start_link(children, opts)
   end
 end
