@@ -46,6 +46,8 @@ defmodule CarRental.Clients.Worker do
 
   def handle_calcluate_score_result({:error, "Rate limit exceeded"}) do
     Process.send_after(self(), :update_score, 60000 + :rand.uniform(10000))
+
+    {:ok}
   end
 
   def handle_calcluate_score_result(response) do
@@ -54,6 +56,8 @@ defmodule CarRental.Clients.Worker do
       params = %ClientsParams{client_id: item.id, score: item.score}
       Clients.save_score_for_client(params)
     end)
+
+    {:ok}
   end
 
   defp via_tuple(id) do
