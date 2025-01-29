@@ -2,7 +2,7 @@ defmodule CarRental.Clients do
   @moduledoc """
   Mock clients DB
   """
-  @clients_count 1000
+  @clients_count 100
 
   alias CarRental.Clients.Client
   alias CarRental.Clients.Params

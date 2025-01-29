@@ -10,8 +10,7 @@ defmodule CarRental.Application do
     children = [
       {CarRental.TrustScore.RateLimiter, []},
       CarRental.Clients.Supervisor,
-      CarRental.Scheduler,
-      {Registry, [keys: :unique, name: CarRental.Clients.Registry]}
+      CarRental.Scheduler
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

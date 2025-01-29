@@ -4,14 +4,15 @@ defmodule CarRental.Clients.Worker do
   alias CarRental.TrustScore
   alias CarRental.TrustScore.Params
   alias CarRental.TrustScore.Params.ClientParams
+  require Logger
 
   use GenServer
 
-  def start_link([clients]) do
-    GenServer.start_link(__MODULE__, [clients])
+  def start_link(clients) do
+    GenServer.start_link(__MODULE__, clients)
   end
 
-  def init([clients]) do
+  def init(clients) do
     init_state =
       clients
       |> Enum.map(fn c ->
@@ -26,8 +27,9 @@ defmodule CarRental.Clients.Worker do
     {:ok, init_state}
   end
 
-  def execute(pid, cmd) do
-    GenServer.cast(pid, cmd)
+  def execute(pid, msg) do
+    Logger.info("Cast pid #{inspect(pid)} with message: #{msg}")
+    GenServer.cast(pid, msg)
   end
 
   def handle_cast(:update_score, state) do
@@ -42,16 +44,17 @@ defmodule CarRental.Clients.Worker do
     |> create_response(state)
   end
 
-  def create_response({_, :stop}, state), do: {:stop, :normal, state}
-  def create_response({_, :wait}, state), do: {:noreply, state}
+  defp create_response({_, :stop}, state), do: {:stop, :shutdown, state}
+  defp create_response({_, :wait}, state), do: {:noreply, state}
 
-  def handle_calcluate_score_result({:error, "Rate limit exceeded"}) do
+  defp handle_calcluate_score_result({:error, "Rate limit exceeded"}) do
+    Logger.info("Rate limit exceeded, pid #{inspect(self())} must wait")
     Process.send_after(self(), :update_score, 60000 + :rand.uniform(10000))
 
     {:ok, :wait}
   end
 
-  def handle_calcluate_score_result(response) do
+  defp handle_calcluate_score_result(response) do
     response
     |> Enum.each(fn item ->
       params = %ClientsParams{client_id: item.id, score: item.score}
@@ -61,8 +64,8 @@ defmodule CarRental.Clients.Worker do
     {:ok, :stop}
   end
 
-  def terminate(_, _) do
-    IO.inspect("PROCESS TERMINATED")
+  def terminate(reason, _) do
+    Logger.info("Process with pid #{inspect(self())} terminated: #{inspect(reason)}")
     :ok
   end
 end
