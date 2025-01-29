@@ -14,7 +14,7 @@ defmodule CarRental.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :wx, :observer],
       mod: {CarRental.Application, []}
     ]
   end
@@ -23,7 +23,8 @@ defmodule CarRental.MixProject do
   defp deps do
     [
       {:typed_struct, "~> 0.3.0"},
-      {:faker, "~> 0.18"}
+      {:faker, "~> 0.18"},
+      {:quantum, "~> 3.0"}
     ]
   end
 end

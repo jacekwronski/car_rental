@@ -8,7 +8,9 @@ defmodule CarRental.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {CarRental.TrustScore.RateLimiter, []}
+      {CarRental.TrustScore.RateLimiter, []},
+      CarRental.Clients.Supervisor,
+      CarRental.Scheduler
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

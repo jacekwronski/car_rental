@@ -4,7 +4,7 @@ defmodule ClientsTest do
   doctest CarRental.Clients
 
   test "list clients works" do
-    assert {:ok, clients} = CarRental.Clients.list_clients()
+    assert {:ok, _clients} = CarRental.Clients.list_clients()
   end
 
   test "list_clients return 100 clients" do

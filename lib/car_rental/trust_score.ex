@@ -15,7 +15,7 @@ defmodule CarRental.TrustScore do
 
   @clients_limit 100
 
-  @spec calculate_score(Params.t()) :: [Response.t()]
+  @spec calculate_score(Params.t()) :: [Response.t()] | {:error, String.t()}
   def calculate_score(params) do
     with :ok <- clients_limit_not_exceeded?(params),
          :ok <- RateLimiter.increment() do
